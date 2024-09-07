@@ -12,7 +12,7 @@ router.post('/Register', (req, res) => {
         const checkEmailQuery = 'SELECT * FROM UserInfo WHERE Email = ?';
         connection.query(checkEmailQuery, [Email], (checkErr, results) => {
             if (checkErr) {
-                res.status(500).send({message:"Failed to Register1, Try Again!"});
+                res.status(500).send({status:3, message:"Failed to Register1, Try Again!"});
                 connection.release();
                 return;
             }
@@ -24,9 +24,9 @@ router.post('/Register', (req, res) => {
                 const values = [Fname, Lname, Email, MobileNumber, Password, Role, IpAddress];
                 connection.query(insertQuery, values, (insertErr, insertResults) => {
                     if (insertErr) {
-                        res.status(500).send({message:"Failed to Register2, Try Again!"});
+                        res.status(500).send({status:3, message:"Failed to Register2, Try Again!"});
                     } else {
-                        res.status(200).send({message: "Registered successfully!"});
+                        res.status(200).send({status:2, message: "Registered successfully!"});
                     }
                     connection.release();
                 });
@@ -39,26 +39,26 @@ router.post('/Login', (req, res) => {
     const {Email, Password} = req.body;
     conn.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send({message:'Failed to Login, Try Again!'});
+            res.status(500).send({status:3, message:'Failed to Login, Try Again!'});
             return;
         }
         const checkEmailQuery = 'SELECT * FROM UserInfo WHERE Email = ?';
         connection.query(checkEmailQuery, [Email], (checkErr, results) => {
             if (checkErr) {
-                res.status(500).send({message:'Failed to Login, Try Again!'});
+                res.status(500).send({status:3, message:'Failed to Login, Try Again!'});
                 connection.release();
                 return;
             }
             if (results.length > 0) {
                 const user = results[0];
                 if (user.Password === Password) {
-                    res.send({data:{userid:user.UserId}, message:"Login successful!"});
+                    res.send({status:1, data:{userid:user.UserId}, message:"Login successful!"});
                 } else {
-                    res.status(401).send({status:1, message:'Incorrect Username and Password!'});
+                    res.status(401).send({status:2, message:'Incorrect Username and Password!'});
                 }
                 connection.release();
             } else {
-                res.send({message:'User Not Found!'});
+                res.send({status:2, message:'Incorrect Username and Password!'});
                 connection.release();
             }
         });
