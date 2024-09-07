@@ -1,13 +1,12 @@
 import express from 'express';
 import conn from '../ConnDBFile/dbConn.js';
-import { randomInt } from 'crypto';
 const router = express.Router();
 
 router.post('/Register', (req, res) => {
     const { Fname, Lname, Email, MobileNumber, Password, Role, IpAddress} = req.body;
     conn.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send({message:"Failed to Connect, Try Again!"});
+            res.status(500).send({status: 3, message:"Failed to Connect, Try Again!"});
             return;
         }
         const checkEmailQuery = 'SELECT * FROM UserInfo WHERE Email = ?';
@@ -18,7 +17,7 @@ router.post('/Register', (req, res) => {
                 return;
             }
             if (results.length > 0) {
-                res.status(400).send({message:"User already exists!"});
+                res.status(400).send({status:2, message:"User already exists!"});
                 connection.release();
             } else {
                 const insertQuery = 'INSERT INTO UserInfo (Fname, Lname, Email, MobileNumber, Password, Role, IpAddress) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -55,7 +54,7 @@ router.post('/Login', (req, res) => {
                 if (user.Password === Password) {
                     res.send({data:{userid:user.UserId}, message:"Login successful!"});
                 } else {
-                    res.status(401).send({message:'Incorrect Username and Password!'});
+                    res.status(401).send({status:1, message:'Incorrect Username and Password!'});
                 }
                 connection.release();
             } else {
