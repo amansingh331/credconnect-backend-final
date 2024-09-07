@@ -24,9 +24,9 @@ router.post('/Register', (req, res) => {
                 const values = [Fname, Lname, Email, MobileNumber, Password, Role, IpAddress];
                 connection.query(insertQuery, values, (insertErr, insertResults) => {
                     if (insertErr) {
-                        res.status(500).send({status:3, message:"Failed to Register2, Try Again!"});
+                        res.status(500).send({status:3, message:"Failed to Register, Try Again!"});
                     } else {
-                        res.status(200).send({status:2, message: "Registered successfully!"});
+                        res.status(200).send({status:1, message: "Registered successfully!"});
                     }
                     connection.release();
                 });

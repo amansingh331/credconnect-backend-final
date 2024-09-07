@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import connt from './tempDBconfi.js'
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,4 +19,4 @@ const config = {
 
 const conn = mysql.createPool(config);
 
-export default conn;
+export default connt;
