@@ -68,13 +68,13 @@ router.post('/Forget', (req, res) => {
     const {Email} = req.body;
     conn.getConnection((err, connection) => {
         if (err) {
-            res.status(500).send('Failed to Reset, Try Again!');
+            res.status(500).send({status:3, message:'Failed to Reset, Try Again!'});
             return;
         }
         const checkEmail = 'SELECT * FROM UserInfo WHERE Email = ?';
         connection.query(checkEmail, [Email], (checkErr, results) => {
             if (checkErr) {
-                res.status(500).send('Failed to Reset, Try Again!');
+                res.status(500).send({status:3, message:'Failed to Reset, Try Again!'});
                 connection.release();
                 return;
             }
@@ -84,16 +84,14 @@ router.post('/Forget', (req, res) => {
                 const values = [otp, Email];
                 connection.query(updateOtpQuery, values, (updateErr, updateResults) => {
                     if (updateErr) {
-                        console.error('Error executing query:', updateErr);
-                        res.status(500).send('Failed to Send Otp, Try Again!');
+                        res.status(500).send({status:3, message:'Failed to Send Otp, Try Again!'});
                     } else {
-                        // You can add code here to send the OTP via email or SMS
-                        res.send('OTP sent successfully!');
+                        res.send({status:1, message:'OTP sent successfully!'});
                     }
                     connection.release();
                 });
             } else {
-                res.send('User Not Found!');
+                res.send({status:2, message:'User Not Found!'});
                 connection.release();
             }
         });
@@ -129,27 +127,32 @@ router.post('/UserInfo', (req, res) => {
                             UserId: user.UserId,
                             Fname: user.Fname,
                             Lname: user.Lname,
-                            Position: user.Position,
+                            Position: user.Position || '',
                             Domain: {
                                 DomainSaveId: user.DomainId,
                                 DomainSaveName: '',
                                 DomainList: DomainList,
                             },
-                            Experience: user.Experience,
-                            CurrentCompany: user.CurrentCompany,
-                            Bio: user.Bio,
+                            Experience: user.Experience || 0,
+                            CurrentCompany: user.CurrentCompany || '',
+                            Bio: user.Bio || '',
                             Dob: user.Dob,
                             Email: user.Email,
                             MobileNumber: user.MobileNumber,
                             ProfilePic: user.ProfilePic,
-                            Description: user.Description,
-                            AvgRating: user.AvgRating,
-                            NoOfReview: user.NoOfReview,
-                            Location: user.Location,
-                            CallPrice: user.CallPrice,
-                            ChatPrice: user.ChatPrice,
-                            VideoPrice: user.VideoPrice,
-                            DateOfJoined: user.DateTime
+                            Description: user.Description || '',
+                            AvgRating: user.AvgRating || 0,
+                            NoOfReview: user.NoOfReview || 0,
+                            Location: user.Location || '',
+                            CallPrice: user.CallPrice || 0,
+                            ChatPrice: user.ChatPrice || 0,
+                            VideoPrice: user.VideoPrice || 0,
+                            DateOfJoined: user.DateTime,
+                            Linkedin: user.Linkedin,
+                            Twitter: user.Twitter,
+                            Facebook: user.Facebook,
+                            Youtube: user.Youtube,
+                            Instagram: user.Instagram
                         };
                         res.json(sendData);
                         connection.release();
@@ -182,6 +185,63 @@ router.post('/UpdateUserInfo', (req, res) => {
                 res.send({status:0, msg:'Failed to Send Otp, Try Again!'});
             } else {
                 res.send({status:1, msg:'OTP sent successfully!'});
+            }
+            connection.release();
+        });
+    });
+});
+
+
+
+router.post('/SocialLink', (req, res) => {
+    const { userid } = req.body;
+    conn.getConnection((err, connection) => {
+        if (err) {
+            res.status(500).send({ message: 'Failed to Load, Try Again!' });
+            return;
+        }
+        const userinfo = 'SELECT * FROM UserInfo WHERE UserId = ?';
+        connection.query(userinfo, [userid], (checkErr, results) => {
+            if (checkErr) {
+                res.status(500).send({ message: 'Failed to Reset, Try Again!' });
+                connection.release();
+                return;
+            }
+            if (results.length > 0) {
+                const user = results[0];
+                const sendData = {
+                    UserId: user.UserId,
+                    Linkedin: user.Linkedin,
+                    Twitter: user.Twitter,
+                    Facebook: user.Facebook,
+                    Youtube: user.Youtube,
+                    Instagram: user.Instagram
+                };
+                res.json(sendData);
+                connection.release();
+            } else {
+                res.send({ message: 'Failed to Load, Try Again!' });
+                connection.release();
+            }
+        });
+    });
+});
+
+router.post('/UpdateSocialLink', (req, res) => {
+    const data = req.body;
+    conn.getConnection((err, connection) => {
+        if (err) {
+            res.status(500).send({message:'Failed to Update, Try Again!'});
+            return;
+        }
+        const updateUserInfoQuery = 'UPDATE UserInfo SET Linkedin = ?, Instagram = ?, Youtube = ?, Twitter = ?, Facebook = ? WHERE UserId = ?';
+        const values = [data.Linkedin, data.Instagram, data.Youtube, data.Twitter, data.Facebook, data.userid];
+        connection.query(updateUserInfoQuery, values, (updateErr, updateResults) => {
+            if (updateErr) {
+                console.error('Error executing query:', updateErr);
+                res.send({status:0, msg:'Failed to Update, Try Again!'});
+            } else {
+                res.send({status:1, msg:'Update successfully!'});
             }
             connection.release();
         });
