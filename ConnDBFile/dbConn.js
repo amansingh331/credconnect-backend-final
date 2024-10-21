@@ -9,9 +9,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const config = {
-    host: 'credconnect-database.mysql.database.azure.com',
-    user: 'credconnectAdmin',
-    password: 'QWaszx12@#',
+    host: 'localhost',
+    user: 'root',
+    password: '',
     database: 'CredConnect',
     port: 3306,
     ssl: { ca: fs.readFileSync(path.resolve(__dirname, 'DigiCertGlobalRootCA.crt.pem')) }
